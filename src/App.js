@@ -57,27 +57,28 @@ const fetchFlareTVL = async () => {
     };
   } catch (error) {
     console.error('Error fetching prices:', error);
-    // Fallback mock data
-    return { 
-      totalTVL: 314579262, 
-      assetBreakdown: {
-        FXRP: { tvl: 149579262, location: 'Kinetic (Lending), SparkDEX (Liquidity)', price: 2.18 },
-        stXRP: { tvl: 50000000, location: 'Firelight Staking', price: 2.18 },
-        WFLR: { tvl: 25000000, location: 'WNat Contract, FTSO Delegation', price: 0.025 },
-        rFLR: { tvl: 15000000, location: 'Incentive Pools (FAssets Program)', price: 0.025 },
-        FLR: { tvl: 100000000, location: 'Native Staking/Validators', price: 0.025 },
-      }, 
-      protocols: [
-        { name: 'Kinetic', tvl: 80000000 },
-        { name: 'SparkDEX', tvl: 40000000 },
-        { name: 'Firelight', tvl: 50000000 },
-        { name: 'FTSO', tvl: 25000000 },
-        { name: 'Validators', tvl: 100000000 },
-      ],
-      xrpPrice: 2.18
-    };
-  }
-};
+    // Updated Metrics Cards with XRP Price
+const MetricsCards = ({ totalTVL, assetBreakdown, xrpPrice }) => (
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6"> {/* Changed to 4 cols */}
+    <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+      <h3 className="text-gray-400 text-sm uppercase tracking-wider">Total TVL</h3>
+      <p className="text-3xl font-bold text-white mt-1">${(totalTVL / 1e6).toFixed(2)}M</p>
+    </div>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+      <h3 className="text-gray-400 text-sm uppercase tracking-wider">FXRP Locked</h3>
+      <p className="text-3xl font-bold text-blue-400 mt-1">${(assetBreakdown.FXRP?.tvl / 1e6 || 0).toFixed(2)}M</p>
+    </div>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-md">
+      <h3 className="text-gray-400 text-sm uppercase tracking-wider">24h Change</h3>
+      <p className="text-3xl font-bold text-green-400 mt-1">+0.70%</p>
+    </div>
+    <div className="bg-gray-800 p-6 rounded-lg shadow-md border-l-4 border-green-500"> {/* New XRP card */}
+      <h3 className="text-gray-400 text-sm uppercase tracking-wider">XRP Price</h3>
+      <p className="text-3xl font-bold text-green-400 mt-1">${xrpPrice?.toFixed(2)}</p>
+      <p className="text-xs text-gray-500 mt-1">Live via CoinGecko</p>
+    </div>
+  </div>
+);
 // Header Component
 const Header = () => (
   <header className="bg-gray-900 p-4 flex justify-between items-center shadow-lg">
@@ -206,7 +207,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Header />
-      <MetricsCards {...data} />
+      <MetricsCards totalTVL={data.totalTVL} assetBreakdown={data.assetBreakdown} xrpPrice={data.xrpPrice} />
       <TVLTable assetBreakdown={data.assetBreakdown} />
       <TVLCharts {...data} />
       <footer className="bg-gray-900 p-4 text-center text-gray-500 text-sm">
