@@ -25,32 +25,59 @@ ChartJS.register(
   Legend
 );
 
-// Mock API function (replace with real fetches later)
+// Updated API function with real XRP price
 const fetchFlareTVL = async () => {
-  // Simulate API response with sample data
-  const assetBreakdown = {
-    FXRP: { tvl: 149579262, location: 'Kinetic (Lending), SparkDEX (Liquidity)', price: 0.54 },
-    stXRP: { tvl: 50000000, location: 'Firelight Staking', price: 0.54 },
-    WFLR: { tvl: 25000000, location: 'WNat Contract, FTSO Delegation', price: 0.025 },
-    rFLR: { tvl: 15000000, location: 'Incentive Pools (FAssets Program)', price: 0.025 },
-    FLR: { tvl: 100000000, location: 'Native Staking/Validators', price: 0.025 },
-  };
-  
-  const totalTVL = Object.values(assetBreakdown).reduce((sum, asset) => sum + asset.tvl, 0);
-  
-  return { 
-    totalTVL, 
-    assetBreakdown, 
-    protocols: [
-      { name: 'Kinetic', tvl: 80000000 },
-      { name: 'SparkDEX', tvl: 40000000 },
-      { name: 'Firelight', tvl: 50000000 },
-      { name: 'FTSO', tvl: 25000000 },
-      { name: 'Validators', tvl: 100000000 },
-    ]
-  };
+  try {
+    // Fetch real XRP price from CoinGecko (free API)
+    const { data: prices } = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ripple&vs_currencies=usd');
+    const xrpPrice = prices.ripple?.usd || 2.18; // Fallback to current price if API fails
+    
+    // Real-ish TVL data (update with DeFiLlama later)
+    const assetBreakdown = {
+      FXRP: { tvl: 149579262, location: 'Kinetic (Lending), SparkDEX (Liquidity)', price: xrpPrice },
+      stXRP: { tvl: 50000000, location: 'Firelight Staking', price: xrpPrice },
+      WFLR: { tvl: 25000000, location: 'WNat Contract, FTSO Delegation', price: 0.025 }, // Mock FLR
+      rFLR: { tvl: 15000000, location: 'Incentive Pools (FAssets Program)', price: 0.025 },
+      FLR: { tvl: 100000000, location: 'Native Staking/Validators', price: 0.025 },
+    };
+    
+    const totalTVL = Object.values(assetBreakdown).reduce((sum, asset) => sum + asset.tvl, 0);
+    
+    return { 
+      totalTVL, 
+      assetBreakdown, 
+      protocols: [
+        { name: 'Kinetic', tvl: 80000000 },
+        { name: 'SparkDEX', tvl: 40000000 },
+        { name: 'Firelight', tvl: 50000000 },
+        { name: 'FTSO', tvl: 25000000 },
+        { name: 'Validators', tvl: 100000000 },
+      ],
+      xrpPrice // New: Pass XRP price for the card
+    };
+  } catch (error) {
+    console.error('Error fetching prices:', error);
+    // Fallback mock data
+    return { 
+      totalTVL: 314579262, 
+      assetBreakdown: {
+        FXRP: { tvl: 149579262, location: 'Kinetic (Lending), SparkDEX (Liquidity)', price: 2.18 },
+        stXRP: { tvl: 50000000, location: 'Firelight Staking', price: 2.18 },
+        WFLR: { tvl: 25000000, location: 'WNat Contract, FTSO Delegation', price: 0.025 },
+        rFLR: { tvl: 15000000, location: 'Incentive Pools (FAssets Program)', price: 0.025 },
+        FLR: { tvl: 100000000, location: 'Native Staking/Validators', price: 0.025 },
+      }, 
+      protocols: [
+        { name: 'Kinetic', tvl: 80000000 },
+        { name: 'SparkDEX', tvl: 40000000 },
+        { name: 'Firelight', tvl: 50000000 },
+        { name: 'FTSO', tvl: 25000000 },
+        { name: 'Validators', tvl: 100000000 },
+      ],
+      xrpPrice: 2.18
+    };
+  }
 };
-
 // Header Component
 const Header = () => (
   <header className="bg-gray-900 p-4 flex justify-between items-center shadow-lg">
